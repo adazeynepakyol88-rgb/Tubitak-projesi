@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Karga / Crow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lora:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0d0d0d;
+      --charcoal: #1a1a1a;
+      --dark: #242424;
+      --feather: #2e2e2e;
+      --silver: #b0b0b0;
+      --cream: #f0ead8;
+      --gold: #c9a84c;
+      --iridescent: #6ec6e6;
+    }
+
+    body {
+      background-color: var(--black);
+      color: var(--cream);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated feather background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(110,198,230,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 50%),
+        repeating-linear-gradient(
+          135deg,
+          transparent,
+          transparent 40px,
+          rgba(255,255,255,0.012) 40px,
+          rgba(255,255,255,0.012) 41px
+        );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeDown 0.9s ease both;
+    }
+
+    .bird-icon {
+      font-size: 72px;
+      display: block;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 0 24px rgba(110,198,230,0.4));
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(-2deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 8vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      color: var(--cream);
+    }
+
+    h1 span {
+      display: block;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.52em;
+      color: var(--gold);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 24px auto;
+    }
+
+    /* Language tabs */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 32px;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px;
+      background: transparent;
+      border: none;
+      color: var(--silver);
+      font-family: 'Lora', serif;
+      font-size: 0.9rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .tab-btn.active {
+      background: var(--feather);
+      color: var(--gold);
+    }
+
+    .tab-btn:not(.active):hover {
+      background: rgba(255,255,255,0.04);
+      color: var(--cream);
+    }
+
+    /* Text card */
+    .text-card {
+      background: var(--charcoal);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 28px;
+      line-height: 1.85;
+      font-size: 1.02rem;
+      color: #ddd6c4;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.9s 0.35s ease both;
+    }
+
+    .text-card::before {
+      content: '"';
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      font-family: 'Playfair Display', serif;
+      font-size: 120px;
+      color: rgba(201,168,76,0.08);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .text-card p {
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .text-card p:last-child { margin-bottom: 0; }
+
+    .lang-panel { display: none; }
+    .lang-panel.active { display: block; }
+
+    /* Audio player */
+    .audio-section {
+      background: var(--dark);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 16px;
+      padding: 28px 32px;
+      animation: fadeUp 0.9s 0.5s ease both;
+    }
+
+    .audio-label {
+      font-size: 0.75rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .audio-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(201,168,76,0.25);
+    }
+
+    /* Custom audio player */
+    .player {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .play-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #a07830);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+    }
+
+    .play-btn:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(201,168,76,0.45); }
+    .play-btn:active { transform: scale(0.96); }
+
+    .play-icon {
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 9px 0 9px 16px;
+      border-color: transparent transparent transparent var(--black);
+      margin-left: 3px;
+      transition: opacity 0.2s;
+    }
+
+    .pause-icon {
+      display: none;
+      gap: 4px;
+    }
+
+    .pause-bar {
+      width: 4px;
+      height: 18px;
+      background: var(--black);
+      border-radius: 2px;
+    }
+
+    .playing .play-icon { display: none; }
+    .playing .pause-icon { display: flex; }
+
+    .progress-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 5px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--iridescent));
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--silver);
+      letter-spacing: 0.5px;
+    }
+
+    /* Waveform visual (decorative) */
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 32px;
+    }
+
+    .wave-bar {
+      width: 3px;
+      background: rgba(201,168,76,0.3);
+      border-radius: 2px;
+      transition: height 0.3s ease, background 0.3s;
+    }
+
+    .playing .wave-bar {
+      background: rgba(201,168,76,0.7);
+      animation: waveAnim 0.8s ease-in-out infinite alternate;
+    }
+
+    .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.05s; }
+    .wave-bar:nth-child(5) { animation-delay: 0.15s; }
+    .wave-bar:nth-child(6) { animation-delay: 0.25s; }
+    .wave-bar:nth-child(7) { animation-delay: 0.08s; }
+    .wave-bar:nth-child(8) { animation-delay: 0.18s; }
+
+    @keyframes waveAnim {
+      from { transform: scaleY(0.4); }
+      to { transform: scaleY(1.1); }
+    }
+
+    /* No audio message */
+    .no-audio {
+      font-size: 0.85rem;
+      color: var(--silver);
+      font-style: italic;
+      text-align: center;
+      padding: 12px;
+    }
+
+    .no-audio a {
+      color: var(--gold);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 48px;
+      font-size: 0.75rem;
+      color: rgba(176,176,176,0.4);
+      letter-spacing: 1px;
+      animation: fadeUp 1s 0.7s ease both;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <span class="bird-icon">🐦‍⬛</span>
+      <h1>
+        Karga
+        <span>Crow · Corvus corone</span>
+      </h1>
+      <div class="divider"></div>
+    </div>
+
+    <!-- Language Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchLang('tr')">🇹🇷 Türkçe</button>
+      <button class="tab-btn" onclick="switchLang('en')">🇬🇧 English</button>
+    </div>
+
+    <!-- Text Content -->
+    <div class="text-card">
+      <!-- Turkish -->
+      <div class="lang-panel active" id="panel-tr">
+        <p>Merhaba! Ben bir kargayım. Güçlü kanatları ve yüksek sesi olan siyah bir kuşum. Birçok insan beni parklarda, şehirlerde ve ormanlarda görür.</p>
+        <p>Çok zekiyim ve basit problemleri çözebilirim. Örneğin, yiyecek almak için küçük çubuklar veya taşlar kullanabilirim.</p>
+        <p>Genellikle böcekler, meyveler, tohumlar ve bazen küçük hayvanlar yerim. İnsanların yaşadığı yerlerde de yiyecek bulmayı severim. Çoğu zaman diğer kargalarla birlikte yaşarım çünkü biz sosyal kuşlarız. Birbirimizle farklı sesler çıkararak iletişim kurarız.</p>
+        <p>Bazı insanlar koyu rengim yüzünden biraz korkutucu göründüğümü düşünebilir, ama ben sadece yaşamaya ve yiyecek bulmaya çalışan normal bir kuşum. Gökyüzünde yüksekten uçabilir ve her şeyi yukarıdan izleyebilirim. Karga olarak hayat ilginç ve macera doludur.</p>
+      </div>
+
+      <!-- English -->
+      <div class="lang-panel" id="panel-en">
+        <p>Hello! I am a crow. I am a black bird with strong wings and a loud voice. Many people see me in parks, cities, and forests.</p>
+        <p>I am very smart, and I can solve simple problems. For example, I can use small sticks or stones to get food.</p>
+        <p>I usually eat insects, fruits, seeds, and sometimes small animals. I also like to find food in places where people live. I often live with other crows because we are social birds. We communicate with each other using different sounds.</p>
+        <p>Some people think I look a little scary because of my dark color, but I am just a normal bird trying to live and find food. I can fly high in the sky and watch everything from above. Life as a crow is interesting and full of adventure.</p>
+      </div>
+    </div>
+
+    <!-- Audio Section -->
+    <div class="audio-section">
+      <div class="audio-label">🔊 Ses Kaydı / Audio</div>
+
+      <!-- Hidden HTML5 audio element - ses.mp3 dosyasını klasöre ekle -->
+      <audio id="audioEl" preload="metadata">
+        <source src="ses.mp3" type="audio/mpeg">
+      </audio>
+
+      <div class="player" id="playerUI">
+        <button class="play-btn" id="playBtn" onclick="togglePlay()">
+          <div class="play-icon"></div>
+          <div class="pause-icon">
+            <div class="pause-bar"></div>
+            <div class="pause-bar"></div>
+          </div>
+        </button>
+
+        <div class="progress-wrap">
+          <div class="progress-bar" id="progressBar" onclick="seek(event)">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="time-row">
+            <span id="currentTime">0:00</span>
+            <div class="waveform" id="waveform">
+              <div class="wave-bar" style="height:12px"></div>
+              <div class="wave-bar" style="height:22px"></div>
+              <div class="wave-bar" style="height:16px"></div>
+              <div class="wave-bar" style="height:28px"></div>
+              <div class="wave-bar" style="height:14px"></div>
+              <div class="wave-bar" style="height:24px"></div>
+              <div class="wave-bar" style="height:18px"></div>
+              <div class="wave-bar" style="height:10px"></div>
+            </div>
+            <span id="duration">0:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      🐦 Hayvanlar Projesi &nbsp;·&nbsp; GitHub Pages
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById('audioEl');
+    const playBtn = document.getElementById('playBtn');
+    const progressFill = document.getElementById('progressFill');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
+    const waveform = document.getElementById('waveform');
+
+    function fmt(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+      durationEl.textContent = fmt(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      progressFill.style.width = pct + '%';
+      currentTimeEl.textContent = fmt(audio.currentTime);
+    });
+
+    audio.addEventListener('ended', () => {
+      playBtn.classList.remove('playing');
+      waveform.classList.remove('playing');
+      progressFill.style.width = '0%';
+      currentTimeEl.textContent = '0:00';
+    });
+
+    function togglePlay() {
+      if (audio.paused) {
+        audio.play();
+        playBtn.classList.add('playing');
+        waveform.classList.add('playing');
+      } else {
+        audio.pause();
+        playBtn.classList.remove('playing');
+        waveform.classList.remove('playing');
+      }
+    }
+
+    function seek(e) {
+      const bar = document.getElementById('progressBar');
+      const rect = bar.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = pct * audio.duration;
+    }
+
+    function switchLang(lang) {
+      document.querySelectorAll('.lang-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('panel-' + lang).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>
